@@ -4,23 +4,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingDeque;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    //Initialize a FIFO capacity-bounded buffer/log
+    //Initialize a FIFO capacity-bounded for application logging
     private final LinkedBlockingDeque<String> log = new LinkedBlockingDeque<>(10);
+
+    //For console logging
+    private static final String TAG = "MainActivity";
+
     public static final String EXTRA_MESSAGE = "com.panu.awesomecalculator.MESSAGE";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +34,10 @@ public class MainActivity extends AppCompatActivity {
 
     //switch activities on user demand
     public void displayLog(View view) {
-        Intent intent = new Intent(this, Log.class);
+        Intent intent = new Intent(this, LogActivity.class);
         intent.putExtra(EXTRA_MESSAGE, logToString());
         startActivity(intent);
+        Log.i(TAG, "Switching to log view.");
     }
 
     //There must be a better way to do this...?
@@ -56,25 +61,8 @@ public class MainActivity extends AppCompatActivity {
         for (TextView textView : textViews) {
             textView.setText("");
         }
+        Log.i(TAG, "Fields cleared.");
     }
-
-    public static void findViews(Context context, View v){
-        try {
-            if (v instanceof ViewGroup) {
-                ViewGroup vg = (ViewGroup) v;
-                for (int i = 0; i < vg.getChildCount(); i++) {
-                    View child = vg.getChildAt(i);
-                    //you can recursively call this method
-                    findViews(context, child);
-                }
-            } else if (v instanceof TextView) {
-                ((TextView) v).setText("");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     public void sum(View view) {
         ArrayList<Integer> ints = parseInts(R.id.sum1, R.id.sum2);
@@ -142,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
             log.poll();
         }
         log.add(loggedResult);
+
+        //Console logging
+        Log.i(TAG, loggedResult);
     }
 
     public ArrayList<Integer> parseInts(int fieldId1, int fieldId2) {
